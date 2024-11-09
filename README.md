@@ -59,6 +59,6 @@ This ROS Package can be used to control the movement of a bot inside the turtles
         ```bash
         rosrun ros_session <script_name> <optional args>
         ```
-        ``
+        ```
         rosrun ros_session move_rect.py 3 2
         ```
