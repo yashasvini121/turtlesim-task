@@ -54,8 +54,11 @@ This ROS Package can be used to control the movement of a bot inside the turtles
         chmod +x src/ros_session/scripts/<script_name>
         ```
     
-    - Run the script to move the bot in a straight line
+    - Run the script to move the bot in a rectangle args: length, breadth
 
         ```bash
-        rosrun ros_session <script_name> <optional args> 
+        rosrun ros_session <script_name> <optional args>
+        ```
+        ``
+        rosrun ros_session move_rect.py 3 2
         ```
