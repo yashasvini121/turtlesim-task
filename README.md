@@ -1,10 +1,8 @@
-Here's an updated README with additional details about the two scripts, their arguments, and sample commands.
-
----
-
 # About
 
 This ROS Package can be used to control the movement of a bot inside the `turtlesim` package. It provides scripts to move the turtle in specific patterns, such as a straight line or a rectangle, with customizable parameters.
+
+This repository is built upon [topguns837/ros_session](https://github.com/topguns837/ros_session).
 
 # Scripts
 
