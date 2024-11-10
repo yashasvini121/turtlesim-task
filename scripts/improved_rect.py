@@ -42,7 +42,7 @@ def turn(velocity_publisher, vel_msg, angle, angular_speed, clockwise):
     velocity_publisher.publish(vel_msg)
     sleep(1)
 
-def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0, initial_direction=0.0, clockwise=False):
+def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0, init_direction_radian=0.0, clockwise=False):
     """
     Function to move the turtle in a rectangular path with the given length and breadth.
     The turtle moves forward by the specified length, turns 90 degrees, moves forward by the specified breadth, turns 90 degrees, and repeats this process to complete the rectangular path.
@@ -58,7 +58,7 @@ def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0, initial
 
     rospy.loginfo("Setting initial direction...")
     # Set the initial direction
-    turn(velocity_publisher, vel_msg, initial_direction, angular_speed, clockwise)
+    turn(velocity_publisher, vel_msg, init_direction_radian, angular_speed, clockwise)
 
     rospy.loginfo("Moving the turtle in a rectangular path...")
 
