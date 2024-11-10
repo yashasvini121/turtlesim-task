@@ -4,9 +4,13 @@ import rospy
 import sys
 from geometry_msgs.msg import Twist
 from time import sleep
+from math import pi
 
 def move_straight(velocity_publisher, vel_msg, distance, speed):
-    # Move forward
+    """
+    Function to move the turtle in a straight line at a given speed for a specified distance.
+    Then pause briefly for 1 second before the next move.
+    """
     vel_msg.linear.x = speed
     vel_msg.angular.z = 0.0
     start_time = rospy.Time.now().to_sec()
@@ -18,9 +22,14 @@ def move_straight(velocity_publisher, vel_msg, distance, speed):
     # Stop after moving the required distance
     vel_msg.linear.x = 0.0
     velocity_publisher.publish(vel_msg)
-    sleep(1)  # Pause briefly before the next move
+    sleep(1)
 
 def turn(velocity_publisher, vel_msg, angle, angular_speed):
+    """
+    Function to turn the turtle by a specified angle at a given angular speed.
+    Then pause briefly for 1 second before the next move.
+    """
+
     # Turn with given angular speed
     vel_msg.linear.x = 0.0
     vel_msg.angular.z = angular_speed
@@ -34,9 +43,13 @@ def turn(velocity_publisher, vel_msg, angle, angular_speed):
     # Stop turning
     vel_msg.angular.z = 0.0
     velocity_publisher.publish(vel_msg)
-    sleep(1)  # Pause briefly before the next move
+    sleep(1)
 
 def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0):
+    """
+    Function to move the turtle in a rectangular path with the given length and breadth.
+    The turtle moves forward by the specified length, turns 90 degrees, moves forward by the specified breadth, turns 90 degrees, and repeats this process to complete the rectangular path.
+    """
     # Initialize the ROS node
     rospy.init_node('move_turtle_rectangle_node', anonymous=True)
     
@@ -49,20 +62,13 @@ def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0):
     rospy.loginfo("Moving the turtle in a rectangular path...")
 
     # Define the turning angle (90 degrees in radians)
-    turn_angle = 1.57  # Approximately pi/2
+    turn_angle = pi / 2
 
     # Repeat the rectangle path 4 times (length, breadth, length, breadth)
     for _ in range(2):
-        # Move along length
         move_straight(velocity_publisher, vel_msg, length, speed)
-        
-        # Turn 90 degrees
         turn(velocity_publisher, vel_msg, turn_angle, angular_speed)
-        
-        # Move along breadth
         move_straight(velocity_publisher, vel_msg, breadth, speed)
-        
-        # Turn 90 degrees
         turn(velocity_publisher, vel_msg, turn_angle, angular_speed)
 
 if __name__ == '__main__':
@@ -70,11 +76,11 @@ if __name__ == '__main__':
         print("Usage: rosrun <package_name> <script_name> <length> <breadth>")
     else:
         try:
-            # Get length and breadth from command line arguments
+            # User Input
             length = float(sys.argv[1])
             breadth = float(sys.argv[2])
             
-            # Call the function to move the turtle in a rectangular path
+            # move_turtle_rectangle Function Call
             move_turtle_rectangle(length, breadth)
         except rospy.ROSInterruptException:
             pass
