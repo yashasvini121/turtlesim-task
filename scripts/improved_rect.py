@@ -74,16 +74,16 @@ def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0, initial
 
 if __name__ == '__main__':
     if len(sys.argv) != 5:
-        print("Usage: rosrun <package_name> <script_name> <length> <breadth> <initial_direction> <clockwise>")
+        print("Usage: rosrun <package_name> <script_name> <length> <breadth> <init_direction_radian> <clockwise>")
     else:
         try:
             # User Input
             length = float(sys.argv[1])
             breadth = float(sys.argv[2])
-            initial_direction = float(sys.argv[3])  # Direction in radians
+            init_direction_radian = float(sys.argv[3])  # Direction in radians
             clockwise = sys.argv[4].lower() == 'true'  # Convert to boolean
             
             # move_turtle_rectangle Function Call
-            move_turtle_rectangle(length, breadth, initial_direction=initial_direction, clockwise=clockwise)
+            move_turtle_rectangle(length, breadth, init_direction_radian=init_direction_radian, clockwise=clockwise)
         except rospy.ROSInterruptException:
             pass
