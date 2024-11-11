@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from geometry_msgs.msg import Twist, Vector3
+from geometry_msgs.msg import Twist, Vector3, Pose
 from abc import ABC, abstractmethod
 import time
 from std_srvs.srv import Empty
@@ -16,6 +16,7 @@ class TurtleMover(ABC):
         self.velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
         self.rate = rospy.Rate(10)
         self.vel_msg = Twist()
+        # self._pose_turtle = Pose()
 
         # Store the speeds as Vector3 objects
         self.vel_msg.linear = Vector3(*linear_speed)
@@ -57,12 +58,18 @@ class TurtleMover(ABC):
         self.velocity_publisher.publish(self.vel_msg)
         self.rate.sleep()
 
-    def set_velocity(self, /, *, linear_x:bool=None, linear_y:bool=None, linear_z:bool=None, angular_x:bool=None, angular_y:bool=None, angular_z:bool=None):
+    def set_velocity(self, /, *, speed_twist_obj:Twist=None, linear_x:float=None, linear_y:float=None, linear_z:float=None, angular_x:float=None, angular_y:float=None, angular_z:float=None):
         """
         Set the linear and angular velocities of the turtle.
         Arguments are passed as keyword arguments. 
         Only updates the velocity components that are provided.
         """
+        # Set the velocity message to the provided Twist object
+        if speed_twist_obj is not None:
+            self.vel_msg = speed_twist_obj
+            self._publish_velocity()
+            return
+        
         # Set linear velocities only for the arguments that are present
         if linear_x is not None:
             self.vel_msg.linear.x = linear_x
@@ -81,6 +88,12 @@ class TurtleMover(ABC):
 
         # Publish the updated velocity message
         self._publish_velocity()
+    
+    def get_axis_speed(self, axis='x'):
+        """
+        Get the current speed of the turtle along the specified axis.
+        """
+        return getattr(self.vel_msg.linear, axis)
 
     def stop(self):
         """
@@ -88,36 +101,46 @@ class TurtleMover(ABC):
         """
         self.set_velocity(linear_x=0.0, linear_y=0.0, linear_z=0.0, angular_x=0.0, angular_y=0.0, angular_z=0.0)
 
-    def move(self, **kwargs):
+    def move(self, /, *, speed_twist_obj:Twist=None, linear_x:float=1.0, linear_y:float=0.0, linear_z:float=0.0):
         """
-        Move the turtle infinitely at the specified linear and angular speeds.
+        Simply put the turtle in straight line motion by default.
         """
-        self.set_velocity(**kwargs)
+        self.set_velocity(speed_twist_obj=speed_twist_obj, linear_x=linear_x, linear_y=linear_y, linear_z=linear_z)
 
     def move_for_duration(self, duration):
         """
         Move the turtle at the current velocity for a specified duration.
         """
         start_time = time.time()
+        self.move()
         while time.time() - start_time < duration and not rospy.is_shutdown():
             self._publish_velocity()
 
-    def get_to_coordinates(self, x, y):
-        """
-        Move the turtle to the specified coordinates (x, y).
-        """
-        # Assuming initial position (0,0)
-        self.x, self.y = 0.0, 0.0
+    # def get_to_coordinates(self, x, y):
+    #     """
+    #     Move the turtle to the specified coordinates (x, y).
+    #     """
+    #     # Check velocity components
+    #     if self.vel_msg.linear == Vector3(0.0, 0.0, 0.0):
+    #         rospy.logwarn("Cannot move to coordinates with non-zero y or z velocity components.")
+    #         rospy.logwarn("Setting default velocities")
+    #         self.set_velocity(linear_x=1.0)
+        
+    #     # Get current coordinates
+    #     # self._pose_turtle = Point()
+    #     curr_x = self._pose_turtle.x
+    #     curr_y = self._pose_turtle.y
+    #     print(f"Current coordinates: ({curr_x}, {curr_y})")
 
-        # Calculate the angle to the target coordinates
-        angle_to_target = math.atan2(y - self.y, x - self.x)
-        self.rotate(angle_to_target)
+    #     # Calculate the angle to the target coordinates
+    #     angle_to_target = math.atan2(y - curr_y, x - curr_x)
+    #     self.rotate(angle_to_target)
 
-        # Calculate the distance to the target coordinates
-        distance_to_target = math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
+    #     # Calculate the distance to the target coordinates
+    #     distance_to_target = math.sqrt((x - curr_x) ** 2 + (y - curr_y) ** 2)
 
-        # Move the turtle to the target coordinates
-        self.move_straight(distance_to_target)
+    #     # Move the turtle to the target coordinates
+    #     self.move_straight(distance_to_target)
     
     def rotate(self, angle:float, clockwise:bool = False, angular_speed:float = 1.0):
         """
@@ -141,8 +164,8 @@ class TurtleMover(ABC):
         self.velocity_publisher.publish(self.vel_msg)
 
         # Restore the initial speed
-        self.vel_msg = initial_speed
-        self._publish_velocity()
+        self.set_velocity(speed_twist_obj=initial_speed)
+        # TODO: Fix: Is this above line even required?
 
     def move_straight(self, distance, axis='x'):
         """
@@ -153,7 +176,7 @@ class TurtleMover(ABC):
             raise ValueError("Invalid axis. Choose from 'x', 'y', or 'z'.")
 
         # Set the linear speed based on the chosen axis
-        linear_speed = getattr(self.vel_msg.linear, axis)
+        linear_speed = self.get_axis_speed(axis)
         start_time = time.time()
 
         while time.time() - start_time < distance / abs(linear_speed) and not rospy.is_shutdown():
@@ -179,9 +202,7 @@ class TurtleMover(ABC):
 # Example usage
 if __name__ == "__main__":
     mover = TurtleMover(linear_speed=(1.0, 0.0, 0.0), angular_speed=(0.0, 0.0, 0.0))
-    mover.move_straight(2)
-    # mover.print_speeds()
+    mover.reset_turtlesim(0)
+    mover.move_straight(4)
     mover.rotate(math.pi / 2, clockwise=False, angular_speed=1)
-    mover.set_velocity(linear_x=1.0)
     mover.move_for_duration(1)
-    mover.reset_turtlesim()
