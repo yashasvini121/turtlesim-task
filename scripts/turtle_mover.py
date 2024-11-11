@@ -8,7 +8,7 @@ from std_srvs.srv import Empty
 import math
 
 class TurtleMover(ABC):
-    def __init__(self, linear_speed: tuple, angular_speed: tuple):
+    def __init__(self, linear_speed: tuple = (1.0, 0.0, 0.0), angular_speed: tuple = (0.0, 0.0, 0.0)):
         """
         Set up the ROS node, create a publisher, and initialize common properties for turtle movement.
         """
@@ -114,6 +114,7 @@ class TurtleMover(ABC):
         """
         start_time = time.time()
         self.set_velocity(linear_x=1.0)
+        # Why again set the speed TODO: TOFIX
         while time.time() - start_time < duration and not rospy.is_shutdown():
             self._publish_velocity()
 
