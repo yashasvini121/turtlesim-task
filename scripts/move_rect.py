@@ -25,7 +25,7 @@ class MoveRectangle(TurtleMover):
         if self.clockwise:
             self.move_straight(length, 'x')
 
-            self.set_velocity(linear_y=-speed)
+            self.set_velocity(linear_x=0, linear_y=-speed)
             self.move_straight(self.breadth, 'y')
 
             self.set_velocity(linear_x=-speed, linear_y=0)
@@ -36,7 +36,7 @@ class MoveRectangle(TurtleMover):
         else:
             self.move_straight(self.length, 'x')
 
-            self.set_velocity(linear_y=speed)
+            self.set_velocity(linear_x=0, linear_y=speed)
             self.move_straight(self.breadth, 'y')
 
             self.set_velocity(linear_x=-speed, linear_y=0)
