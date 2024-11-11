@@ -31,7 +31,7 @@ class MoveCircle(TurtleMover):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 1:
+    if len(sys.argv) > 3:
         print("\033[31mUsage: rosrun ros_session move_circle.py optional: <radius:float 1> <speed:float 1>\033[31m")
     else:
         try:
