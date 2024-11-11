@@ -2,85 +2,63 @@
 
 import rospy
 import sys
-from geometry_msgs.msg import Twist
-from time import sleep
-from math import pi
+from turtle_mover import TurtleMover
+from ast import literal_eval
 
-def move_straight(velocity_publisher, vel_msg, distance, speed):
-    """
-    Function to move the turtle in a straight line at a given speed for a specified distance.
-    Then pause briefly for 1 second before the next move.
-    """
-    vel_msg.linear.x = speed
-    vel_msg.angular.z = 0.0
-    start_time = rospy.Time.now().to_sec()
-
-    while rospy.Time.now().to_sec() - start_time < distance / speed:
-        velocity_publisher.publish(vel_msg)
-        rospy.sleep(0.01)
-
-    # Stop after moving the required distance
-    vel_msg.linear.x = 0.0
-    velocity_publisher.publish(vel_msg)
-    sleep(1)
-
-def turn(velocity_publisher, vel_msg, angle, angular_speed):
-    """
-    Function to turn the turtle by a specified angle at a given angular speed.
-    Then pause briefly for 1 second before the next move.
-    """
-
-    # Turn with given angular speed
-    vel_msg.linear.x = 0.0
-    vel_msg.angular.z = angular_speed
-    start_time = rospy.Time.now().to_sec()
-
-    # Time to turn 90 degrees (1.57 radians) = angle / angular_speed
-    while rospy.Time.now().to_sec() - start_time < angle / abs(angular_speed):
-        velocity_publisher.publish(vel_msg)
-        rospy.sleep(0.01)
-
-    # Stop turning
-    vel_msg.angular.z = 0.0
-    velocity_publisher.publish(vel_msg)
-    sleep(1)
-
-def move_turtle_rectangle(length, breadth, speed=1.0, angular_speed=1.0):
-    """
-    Function to move the turtle in a rectangular path with the given length and breadth.
-    The turtle moves forward by the specified length, turns 90 degrees, moves forward by the specified breadth, turns 90 degrees, and repeats this process to complete the rectangular path.
-    """
-    # Initialize the ROS node
-    rospy.init_node('move_turtle_rectangle_node', anonymous=True)
+class MoveRectangle(TurtleMover):
+    """:status: pending  The direction feature is not implemented yet."""
     
-    # Create a publisher to send velocity commands to the turtle
-    velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
-    
-    # Create a Twist message
-    vel_msg = Twist()
+    def __init__(self, length_, breadth, speed=1.0, clockwise=True, facing_direction='w'):
+        super().__init__((speed, 0, 0), (0, 0, 0))
+        self.length = length_
+        self.breadth = breadth
+        self.set_velocity(linear_x=speed)
+        self.clockwise = clockwise
+        self.facing_direction = facing_direction
 
-    rospy.loginfo("Moving the turtle in a rectangular path...")
+    def move_rect(self):
+        """
+        Move the turtle in a rectangle path.
+        """
+        speed = self.vel_msg.linear.x
 
-    # Define the turning angle (90 degrees in radians)
-    turn_angle = pi / 2
+        if self.clockwise:
+            self.move_straight(length, 'x')
 
-    # Repeat the rectangle path 4 times (length, breadth, length, breadth)
-    for _ in range(2):
-        move_straight(velocity_publisher, vel_msg, length, speed)
-        turn(velocity_publisher, vel_msg, turn_angle, angular_speed)
-        move_straight(velocity_publisher, vel_msg, breadth, speed)
-        turn(velocity_publisher, vel_msg, turn_angle, angular_speed)
+            self.set_velocity(linear_y=-speed)
+            self.move_straight(self.breadth, 'y')
+
+            self.set_velocity(linear_x=-speed, linear_y=0)
+            self.move_straight(self.length, 'x')
+
+            self.set_velocity(linear_x=0, linear_y=speed)
+            self.move_straight(self.breadth, 'y')
+        else:
+            self.move_straight(self.length, 'x')
+
+            self.set_velocity(linear_y=speed)
+            self.move_straight(self.breadth, 'y')
+
+            self.set_velocity(linear_x=-speed, linear_y=0)
+            self.move_straight(self.length, 'x')
+
+            self.set_velocity(linear_x=0, linear_y=-speed)
+            self.move_straight(self.breadth, 'y')
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print("Usage: rosrun <package_name> <script_name> <length> <breadth>")
+    if len(sys.argv) > 6:
+        print("\033[31mUsage: rosrun ros_session move_rect.py <length> <breadth> optional: <speed:float 1> <clockwise:bool TRUE> <facing_direction:char N [n, w, e, s]>\033[31m")
     else:
         try:
             # User Input
             length = float(sys.argv[1])
             breadth = float(sys.argv[2])
+            speed = float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
+            clockwise = literal_eval((sys.argv[4]).capitalize()) if len(sys.argv) > 4 else True
+            facing_direction = sys.argv[5].lower() if len(sys.argv) > 5 else 'w'
             
-            # move_turtle_rectangle Function Call
-            move_turtle_rectangle(length, breadth)
+            move_rect = MoveRectangle(length, breadth, speed, clockwise)
+            move_rect.reset_turtlesim()
+            move_rect.move_rect()
         except rospy.ROSInterruptException:
             pass
