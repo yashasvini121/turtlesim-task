@@ -3,9 +3,10 @@
 import rospy
 from turtle_mover import TurtleMover
 from math import pi
+import sys
 
 class MoveCircle(TurtleMover):
-    def __init__(self, *, speed=1.0, radius=1.0):
+    def __init__(self, radius=1.0, speed=1.0):
         """
         Derived class to move the turtle in a circle.
         """
@@ -30,10 +31,18 @@ class MoveCircle(TurtleMover):
 
 
 if __name__ == '__main__':
-    try:
-        circle_mover = MoveCircle(radius=2)
-        print(f"\033[33m{circle_mover.move_circular.__doc__}\033[33m")
-        circle_mover.reset_turtlesim(0)
-        circle_mover.move_circular()
-    except rospy.ROSInterruptException:
-        pass
+    if len(sys.argv) < 1:
+        print("\033[31mUsage: rosrun ros_session move_circle.py optional: <radius:float 1> <speed:float 1>\033[31m")
+    else:
+        try:
+            # User Input
+            radius = float(sys.argv[1]) if len(sys.argv) > 1 else 1.0
+            speed = float(sys.argv[2]) if len(sys.argv) > 2 else 1.0
+
+            circle_mover = MoveCircle(radius, speed)
+            print(f"\033[33m{circle_mover.move_circular.__doc__}\033[33m")
+            circle_mover.reset_turtlesim(0)
+            circle_mover.move_circular()
+            
+        except rospy.ROSInterruptException:
+            pass
