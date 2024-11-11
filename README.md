@@ -7,9 +7,8 @@ This repository is built upon [topguns837/ros_session](https://github.com/topgun
 <a href="https://youtu.be/QUYkIAd8WQs?si=rm1e0AzNei64N4pd" title="Link Title">Demonstration Video</a>
 
 <div style="text-align: center;">
-  <a href="https://youtu.be/QUYkIAd8WQs?si=rm1e0AzNei64N4pd" title="Link Title">
     <img src="turtle.png" alt="Video Link" width="300" height="auto"/>
-  </a>
+    <img src="perfect-rect.png" alt="Video Link" width="300" height="auto"/>
 </div>
 
 # Scripts
