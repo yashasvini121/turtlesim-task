@@ -101,18 +101,19 @@ class TurtleMover(ABC):
         """
         self.set_velocity(linear_x=0.0, linear_y=0.0, linear_z=0.0, angular_x=0.0, angular_y=0.0, angular_z=0.0)
 
-    def move(self, /, *, speed_twist_obj:Twist=None, linear_x:float=1.0, linear_y:float=0.0, linear_z:float=0.0):
-        """
-        Simply put the turtle in straight line motion by default.
-        """
-        self.set_velocity(speed_twist_obj=speed_twist_obj, linear_x=linear_x, linear_y=linear_y, linear_z=linear_z)
+    # def move(self, /, *, speed_twist_obj:Twist=None, linear_x:float=1.0, linear_y:float=0.0, linear_z:float=0.0):
+    #     """
+    #     Set velocity to move the turtle in the specified direction.
+    #     Though the function is named 'move', it only sets the velocity. So commenting out this function.
+    #     """
+    #     self.set_velocity(speed_twist_obj=speed_twist_obj, linear_x=linear_x, linear_y=linear_y, linear_z=linear_z)
 
     def move_for_duration(self, duration):
         """
         Move the turtle at the current velocity for a specified duration.
         """
         start_time = time.time()
-        self.move()
+        self.set_velocity(linear_x=1.0)
         while time.time() - start_time < duration and not rospy.is_shutdown():
             self._publish_velocity()
 
@@ -200,9 +201,10 @@ class TurtleMover(ABC):
         print(f"Angular speeds: {self.angular_speed}")
 
 # Example usage
-if __name__ == "__main__":
-    mover = TurtleMover(linear_speed=(1.0, 0.0, 0.0), angular_speed=(0.0, 0.0, 0.0))
-    mover.reset_turtlesim(0)
-    mover.move_straight(4)
-    mover.rotate(math.pi / 2, clockwise=False, angular_speed=1)
-    mover.move_for_duration(1)
+# if __name__ == "__main__":
+#     mover = TurtleMover(linear_speed=(1.0, 0.0, 0.0), angular_speed=(0.0, 0.0, 0.0))
+#     mover.reset_turtlesim(0)
+#     mover.move_straight(4)
+#     mover.rotate(math.pi / 2, clockwise=False, angular_speed=1)
+#     mover.move()
+#     mover.move_for_duration(1)
