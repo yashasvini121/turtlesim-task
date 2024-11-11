@@ -192,7 +192,7 @@ class TurtleMover(ABC):
         # Stop after moving the specified distance
         self.stop()
 
-    ## Getters
+    ### Getters ###
     def print_speeds(self):
         """
         Print the current linear and angular speeds of the turtle.
@@ -200,11 +200,10 @@ class TurtleMover(ABC):
         print(f"Linear speeds: {self.linear_speed}")
         print(f"Angular speeds: {self.angular_speed}")
 
-# Example usage
+
 # if __name__ == "__main__":
 #     mover = TurtleMover(linear_speed=(1.0, 0.0, 0.0), angular_speed=(0.0, 0.0, 0.0))
 #     mover.reset_turtlesim(0)
 #     mover.move_straight(4)
 #     mover.rotate(math.pi / 2, clockwise=False, angular_speed=1)
-#     mover.move()
 #     mover.move_for_duration(1)
