@@ -176,9 +176,21 @@ class TurtleMover(ABC):
         if axis not in ('x', 'y', 'z'):
             raise ValueError("Invalid axis. Choose from 'x', 'y', or 'z'.")
 
-        # Set the linear speed based on the chosen axis
-        linear_speed = self.get_axis_speed(axis)
         start_time = time.time()
+
+        # Set the linear speed based on the chosen axis
+        if self.get_axis_speed(axis) == 0.0:
+            rospy.logwarn(f"Cannot move with zero velocity in axis: {axis}. Setting default velocity.")
+            # Set default velocity for the specified axis if zero
+            if axis == 'x':
+                self.set_velocity(linear_x=1.0)
+            elif axis == 'y':
+                self.set_velocity(linear_y=1.0)
+            elif axis == 'z':
+                self.set_velocity(linear_z=1.0)
+            rospy.logwarn(f"New Linear Speed: {self.linear_speed}; Angular Speed: {self.angular_speed}")
+        
+        linear_speed = self.get_axis_speed(axis)
 
         while time.time() - start_time < distance / abs(linear_speed) and not rospy.is_shutdown():
             # Set the velocity along the specified axis
