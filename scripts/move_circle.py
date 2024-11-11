@@ -1,44 +1,39 @@
 #!/usr/bin/env python3
 
 import rospy
-from geometry_msgs.msg import Twist
+from turtle_mover import TurtleMover
+from math import pi
 
-def move_turtle():
-    # Initialize the ROS node
-    rospy.init_node('move_turtle_circle_node', anonymous=True)
-    
-    # Create a publisher to send velocity commands to the turtle
-    velocity_publisher = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
-    
-    # Define the rate at which the loop will run (10 Hz)
-    rate = rospy.Rate(10)
-    
-    # Create a Twist message to set linear and angular velocity
-    vel_msg = Twist()
-    
-    # Set linear velocity in the x direction (forward motion)
-    vel_msg.linear.x = 1.0  # Adjust the speed as needed for larger or smaller circles
-    vel_msg.linear.y = 0.0
-    vel_msg.linear.z = 0.0
-    
-    # Set angular velocity to make the turtle turn
-    vel_msg.angular.x = 0.0
-    vel_msg.angular.y = 0.0
-    vel_msg.angular.z = 1.0  # Adjust the angular speed as needed
+class MoveCircle(TurtleMover):
+    def __init__(self, *, speed=1.0, radius=1.0):
+        """
+        Derived class to move the turtle in a circle.
+        """
+        self.radius = radius
+        self.speed = speed
+        angular_speed = self.speed / self.radius  # Calculate angular speed for circular motion
+        super().__init__((self.speed, 0.0, 0.0), (0.0, 0.0, angular_speed))
 
-    rospy.loginfo("Moving the turtle in a circle...")
-
-    # Keep publishing the velocity message until the node is shut down
-    while not rospy.is_shutdown():
-        # Publish the velocity message
-        velocity_publisher.publish(vel_msg)
+    def move_circular(self):
+        """
+        move_circular(): Move the turtle in a circle by setting linear and angular velocities.
+        :status: to_fix
+        :issue: The duration (time) calculation is not accurate.
+        """
+        # Set velocities for circular motion
+        self.set_velocity(linear_x=self.speed, angular_z=self.speed / self.radius)
         
-        # Sleep for the specified rate (10 Hz)
-        rate.sleep()
+        # Calculate the duration to complete one full circle
+        # TODO: BUG: Formula not giving accurate results, so using a constant value
+        duration = (2 * pi * self.radius) / self.speed
+        self.move_for_duration(duration)
+
 
 if __name__ == '__main__':
     try:
-        # Call the function to move the turtle in a circle
-        move_turtle()
+        circle_mover = MoveCircle(radius=2)
+        print(f"\033[33m{circle_mover.move_circular.__doc__}\033[33m")
+        circle_mover.reset_turtlesim(0)
+        circle_mover.move_circular()
     except rospy.ROSInterruptException:
         pass
